@@ -1,0 +1,94 @@
+<style>
+    /* --- Premium Custom Footer Styles --- */
+    .custom-footer {
+        background-color: var(--sidebar-bg, #0f172a); /* Matches your dark sidebar */
+        border-top: 1px solid rgba(255,255,255,0.05);
+        margin-top: auto;
+    }
+    .footer-links { padding-left: 0; }
+    .footer-links li { margin-bottom: 12px; list-style: none; }
+    .footer-links a {
+        color: var(--sidebar-text, #94a3b8); text-decoration: none; 
+        font-size: 0.9rem; transition: all 0.2s ease;
+    }
+    .footer-links a:hover { 
+        color: #ffffff; transform: translateX(5px); display: inline-block; 
+    }
+    
+    /* Social Media Icons */
+    .social-icon {
+        width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;
+        border-radius: 12px; background: rgba(255,255,255,0.05); color: var(--sidebar-text, #94a3b8);
+        font-size: 1.2rem; transition: all 0.3s ease; text-decoration: none;
+    }
+    .social-icon:hover { color: #ffffff; transform: translateY(-4px); box-shadow: 0 8px 15px rgba(0,0,0,0.2); }
+    .social-icon.linkedin:hover { background: #0a66c2; border-color: #0a66c2; }
+    .social-icon.instagram:hover { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+    .social-icon.github:hover { background: #2b3137; }
+    .social-icon.twitter:hover { background: #000000; }
+
+    /* Heartbeat Animation for YB Tantra signature */
+    @keyframes heartbeat {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.25); }
+    }
+    .heart-beat { animation: heartbeat 1.5s infinite; display: inline-block; }
+</style>
+
+<!-- Beautiful Modern Footer -->
+<footer class="custom-footer pt-5 pb-3 px-4">
+    <div class="row gy-4 mb-4">
+        
+        <!-- About Section -->
+        <div class="col-lg-5 col-md-12 pe-lg-5">
+            <h5 class="text-white fw-bold mb-3 d-flex align-items-center">
+                <div class="bg-primary text-white rounded d-inline-flex align-items-center justify-content-center me-2" style="width: 28px; height: 28px; font-size: 0.8rem;">
+                    <i class="fa-solid fa-notes-medical"></i>
+                </div>
+                CityCare HMS
+            </h5>
+            <p class="text-white-50 small" style="line-height: 1.7; text-align: justify;">
+                CityCare Hospital Management System is a next-generation platform designed to streamline patient care, simplify billing, and optimize doctor workflows. We believe in leveraging smart technology to make healthcare administration more accessible, secure, and efficient.
+            </p>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="col-lg-3 col-md-6">
+            <h6 class="text-white mb-3 fw-semibold">Quick Links</h6>
+            <ul class="footer-links">
+                <li><a href="{% url 'dashboard' %}"><i class="fa-solid fa-angle-right me-2 text-primary"></i> System Dashboard</a></li>
+                <li><a href="{% url 'login' %}"><i class="fa-solid fa-angle-right me-2 text-primary"></i> Staff Portal</a></li>
+                <li><a href="#"><i class="fa-solid fa-angle-right me-2 text-primary"></i> Support Center</a></li>
+                <li><a href="#"><i class="fa-solid fa-angle-right me-2 text-primary"></i> Privacy Policy</a></li>
+            </ul>
+        </div>
+
+        <!-- Social Media Links -->
+        <div class="col-lg-4 col-md-6">
+            <h6 class="text-white mb-3 fw-semibold">Connect With Me</h6>
+            <p class="text-white-50 small mb-3">Follow my journey and check out my other projects on my social platforms.</p>
+            <div class="d-flex gap-3 mt-3">
+                <!-- ⚠️ REPLACE '#' WITH YOUR ACTUAL PROFILE LINKS ⚠️ -->
+                <a href="https://www.linkedin.com/in/yash-bharambe" target="_blank" class="social-icon linkedin" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                <a href="https://www.instagram.com/yb_tantra?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="social-icon instagram" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="https://github.com/yourprofile" target="_blank" class="social-icon github" title="GitHub"><i class="fa-brands fa-github"></i></a>
+                <a href="https://twitter.com/yourprofile" target="_blank" class="social-icon twitter" title="Twitter/X"><i class="fa-brands fa-x-twitter"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Divider Line -->
+    <hr style="border-color: rgba(255,255,255,0.1); margin: 0 0 20px 0;">
+
+    <!-- Bottom Footer: Credit & Signature -->
+    <div class="row align-items-center">
+        <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+            <p class="text-white-50 small mb-0">&copy; <script>document.write(new Date().getFullYear())</script> CityCare Hospital System. All rights reserved.</p>
+        </div>
+        <div class="col-md-6 text-center text-md-end">
+            <p class="text-white-50 small mb-0">
+                Developed with <i class="fa-solid fa-heart text-danger mx-1 heart-beat"></i> by <strong class="text-white fw-bold fs-6" style="letter-spacing: 0.5px;">YB Tantra</strong>
+            </p>
+        </div>
+    </div>
+</footer>

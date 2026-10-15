@@ -1,0 +1,27 @@
+ModernCare Hospital Management SystemThis is a Django-based Hospital Management System with a Role-Based Access Control (RBAC) architecture, connecting to a local XAMPP MySQL database.Project ArchitectureThe project follows the standard Django MVT (Model-View-Template) pattern:Database (XAMPP MySQL): Stores Users (Doctors/Receptionists), Patients, and Visits/Bills.Models (hospital/models.py): Defines the CustomUser (Main Doctor, Working Doctor, Receptionist), Patient, and Visit.Views (hospital/views.py): Contains the business logic for each role's dashboard, routing them based on their authentication role.Templates (templates/index.html): A single-page, dynamically rendered UI built with Tailwind CSS. It adapts its display based on the logged-in user's role.Core (core/settings.py & core/urls.py): The project's central configuration, routing, and database connection settings.Directory StructureEnsure your files are placed exactly like this:
+
+hospital_project/
+│
+├── manage.py                  # Django execution script
+├── requirements.txt           # Python dependencies
+├── README.md                  # This file
+│
+├── core/                      # Project Configuration Folder
+│   ├── __init__.py
+│   ├── settings.py            # Main settings & MySQL config
+│   └── urls.py                # Main URL routing
+│
+├── hospital/                  # App Folder
+│   ├── __init__.py
+│   ├── models.py              # Database schemas
+│   ├── views.py               # Logic & role management
+│   └── urls.py                # App routing
+│
+└── templates/                 # UI Folder
+    └── index.html             # Main Frontend Template
+How to Run the ProjectStep 1: Database Setup (XAMPP)Open the XAMPP Control Panel and Start Apache and MySQL.Go to your browser and open http://localhost/phpmyadmin/.Create a new database and name it exactly: hospital_db.Step 2: Install DependenciesOpen your terminal/command prompt in the hospital_project/ directory and run:pip install -r requirements.txt
+(Note: If you get an error installing mysqlclient on Windows, you can alternatively install PyMySQL and add import pymysql; pymysql.install_as_MySQLdb() to the very top of core/__init__.py)Step 3: Apply MigrationsConnect Django to the MySQL database and build the tables:python manage.py makemigrations hospital
+python manage.py migrate
+Step 4: Create the Main Doctor (Admin) AccountRun the following command and follow the prompts to create your primary user:python manage.py createsuperuser
+Note: Because of our custom User model, this Superuser automatically acts as the highest authority. You may need to briefly log into the standard Django admin (http://localhost:8000/admin) to set their Role specifically to "Main Doctor" from the dropdown.Step 5: Run the Serverpython manage.py runserver
+Open http://localhost:8000 in your web browser. Log in with the superuser account you just created, and you can start adding Receptionists and Working Doctors from the UI!

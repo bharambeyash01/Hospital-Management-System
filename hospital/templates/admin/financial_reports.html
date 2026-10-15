@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block page_header %}Financial Reports{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="custom-card border-top border-primary border-4">
+            <div class="text-muted mb-1">Total Hospital Revenue</div>
+            <h3 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-indian-rupee-sign"></i> {{ total_revenue }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="custom-card border-top border-danger border-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted mb-1">Total Expenses</div>
+                <a href="{% url 'manage_expenses' %}" class="btn btn-sm btn-outline-danger py-0 px-2">Manage</a>
+            </div>
+            <h3 class="fw-bold mb-0 text-danger"><i class="fa-solid fa-indian-rupee-sign"></i> {{ total_expenses }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="custom-card {% if net_profit >= 0 %}bg-success{% else %}bg-danger{% endif %} text-white border-0 shadow-sm">
+            <div class="text-white-50 mb-1">Net Profit</div>
+            <h3 class="fw-bold mb-0 text-white"><i class="fa-solid fa-indian-rupee-sign"></i> {{ net_profit }}</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="custom-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fa-solid fa-user-doctor text-primary me-2"></i> Working Doctors Staff</h5>
+                <a href="/admin/hospital/customuser/" target="_blank" class="btn btn-sm btn-outline-primary">
+                    <i class="fa-solid fa-plus"></i> Add/Remove Staff
+                </a>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover table-custom align-middle">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Username</th>
+                            <th>Specialization</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in working_doctors %}
+                        <tr>
+                            <td class="fw-bold">Dr. {{ doc.first_name }} {{ doc.last_name }}</td>
+                            <td>{{ doc.username }}</td>
+                            <td>{{ doc.specialization|default:"General Physician" }}</td>
+                            <td>
+                                {% if doc.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-3 text-muted">No working doctors added yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

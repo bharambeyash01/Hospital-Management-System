@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block page_header %}
+<div class="d-flex align-items-center justify-content-between">
+    <div>
+        <i class="fa-solid fa-id-card text-primary me-2"></i> Patient Medical File
+    </div>
+    <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Patient Details -->
+    <div class="col-md-4">
+        <div class="custom-card text-center mb-4">
+            <div class="display-1 text-primary mb-3">
+                <i class="fa-solid fa-user-circle"></i>
+            </div>
+            <h4 class="fw-bold">{{ patient.first_name }} {{ patient.last_name }}</h4>
+            <p class="text-muted mb-3">Patient ID: #{{ patient.id }}</p>
+            
+            <ul class="list-group list-group-flush text-start mb-4">
+                <li class="list-group-item"><i class="fa-solid fa-calendar text-muted me-2"></i> <strong>Age:</strong> {{ patient.age }}</li>
+                <li class="list-group-item"><i class="fa-solid fa-venus-mars text-muted me-2"></i> <strong>Gender:</strong> {{ patient.gender }}</li>
+                <li class="list-group-item"><i class="fa-solid fa-phone text-muted me-2"></i> <strong>Contact:</strong> {{ patient.contact_number }}</li>
+                <li class="list-group-item"><i class="fa-solid fa-location-dot text-muted me-2"></i> <strong>Address:</strong> {{ patient.address|default:"Not Provided" }}</li>
+            </ul>
+
+            {% if user.is_receptionist or user.is_main_doctor or user.is_superuser %}
+            <a href="{% url 'reception_desk' %}?patient_id={{ patient.id }}" class="btn btn-primary w-100 fw-bold">
+                <i class="fa-solid fa-calendar-plus me-2"></i> Book Appointment
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Treatment Timeline -->
+    <div class="col-md-8">
+        <div class="custom-card">
+            <h5 class="fw-bold mb-4"><i class="fa-solid fa-timeline text-primary me-2"></i> Medical History & Visits</h5>
+            
+            <div class="timeline border-start border-primary border-3 ms-3 ps-4">
+                {% for appt in appointments %}
+                <div class="mb-4 position-relative">
+                    <span class="position-absolute top-0 start-0 translate-middle p-2 bg-primary border border-light rounded-circle" style="margin-left: -1.6rem;"></span>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h6 class="fw-bold text-primary mb-0">{{ appt.date_assigned|date:"F d, Y - h:i A" }}</h6>
+                        {% if appt.status == 'Paid' %}
+                            <span class="badge bg-success">Paid (₹{{ appt.bill_amount }})</span>
+                        {% elif appt.status == 'Completed' %}
+                            <span class="badge bg-warning text-dark">Completed - Unpaid (₹{{ appt.bill_amount }})</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Pending Treatment</span>
+                        {% endif %}
+                    </div>
+                    <div class="card bg-light border-0 shadow-sm mt-2">
+                        <div class="card-body">
+                            <p class="mb-2"><strong>Attending Doctor:</strong> {% if appt.assigned_doctor %}Dr. {{ appt.assigned_doctor.last_name }}{% else %}<span class="text-muted">Deleted Doctor</span>{% endif %}</p>
+                            <p class="mb-2"><strong>Symptoms Reported:</strong> {{ appt.symptoms_noted }}</p>
+                            
+                            {% if appt.status != 'Pending' %}
+                                <div class="p-3 bg-white border rounded mt-3">
+                                    <h6 class="fw-bold text-success"><i class="fa-solid fa-stethoscope me-1"></i> Diagnosis</h6>
+                                    <p class="mb-2 text-muted">{{ appt.doctor_notes|default:"No notes recorded." }}</p>
+                                    <h6 class="fw-bold text-info mt-3"><i class="fa-solid fa-pills me-1"></i> Prescribed Medication</h6>
+                                    <p class="mb-0 text-muted">{{ appt.prescription|default:"No prescription provided." }}</p>
+                                </div>
+                                
+                                <div class="d-flex flex-wrap gap-2 mt-3 pt-2 border-top">
+                                    <a href="{% url 'generate_prescription' appt.id %}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        <i class="fa-solid fa-file-prescription me-1"></i> Print Prescription
+                                    </a>
+                                    
+                                    {% if appt.status == 'Paid' %}
+                                        <a href="{% url 'generate_receipt' appt.id %}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fa-solid fa-print me-1"></i> Print Receipt
+                                        </a>
+                                        <a href="{{ appt.get_whatsapp_url }}" target="_blank" class="btn btn-sm btn-success">
+                                            <i class="fa-brands fa-whatsapp me-1"></i> WhatsApp
+                                        </a>
+                                    {% elif appt.status == 'Completed' %}
+                                        {% if user.is_receptionist or user.is_main_doctor or user.is_superuser %}
+                                            <a href="{% url 'reception_desk' %}" class="btn btn-sm btn-warning text-dark">
+                                                <i class="fa-solid fa-cash-register me-1"></i> Collect Bill at Desk
+                                            </a>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <div class="mt-2 text-muted small">
+                                    <i class="fa-solid fa-clock me-1"></i> Scheduled: {{ appt.scheduled_date|date:"M d, Y" }} at {{ appt.scheduled_time|time:"h:i A" }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted">No medical history found for this patient.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

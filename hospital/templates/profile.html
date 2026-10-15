@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_header %}<i class="fa-solid fa-user-gear text-primary me-2"></i> My Profile Settings{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="custom-card border-top border-primary border-4">
+            <div class="d-flex align-items-center mb-4">
+                <img src="https://ui-avatars.com/api/?name={{ user.first_name|default:'User' }}&background=2563eb&color=fff&size=80" alt="Profile" class="rounded-circle shadow-sm me-4">
+                <div>
+                    <h4 class="fw-bold mb-1">{{ user.first_name }} {{ user.last_name }}</h4>
+                    <p class="text-muted mb-0">@{{ user.username }} | {% if user.is_main_doctor %}Administrator{% elif user.is_working_doctor %}Working Doctor{% else %}Receptionist{% endif %}</p>
+                </div>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                    <a href="{% url 'change_password' %}" class="btn btn-outline-warning fw-bold"><i class="fa-solid fa-key me-2"></i> Change Password</a>
+                    <button type="submit" class="btn btn-primary px-5 fw-bold"><i class="fa-solid fa-save me-2"></i> Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

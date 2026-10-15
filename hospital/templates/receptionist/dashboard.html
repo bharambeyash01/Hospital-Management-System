@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_header %}<i class="fa-solid fa-chart-pie text-primary me-2"></i> Receptionist Dashboard{% endblock %}
+
+{% block content %}
+<!-- Shift Summary -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="custom-card border-top border-primary border-4 text-center p-3">
+            <div class="text-muted mb-1 small">Registered Today</div>
+            <h4 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-user-plus"></i> {{ patients_today }}</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="custom-card border-top border-info border-4 text-center p-3">
+            <div class="text-muted mb-1 small">Appointments Today</div>
+            <h4 class="fw-bold mb-0 text-info"><i class="fa-solid fa-calendar-check"></i> {{ appointments_today }}</h4>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="custom-card text-center d-flex align-items-center justify-content-center h-100 p-0" style="background: transparent; border: none; box-shadow: none;">
+            <a href="{% url 'reception_desk' %}" class="btn btn-primary w-100 py-3 fw-bold shadow-sm" style="border-radius: 12px;">
+                <i class="fa-solid fa-desktop me-2"></i> Reception Desk
+            </a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="custom-card text-center d-flex align-items-center justify-content-center h-100 p-0" style="background: transparent; border: none; box-shadow: none;">
+            <a href="{% url 'daily_report' %}" target="_blank" class="btn btn-outline-dark w-100 py-3 fw-bold shadow-sm" style="border-radius: 12px; background: white;">
+                <i class="fa-solid fa-print me-2"></i> Daily Report
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Left Column: Doctors -->
+    <div class="col-md-4">
+        <div class="custom-card mb-4 bg-light border">
+            <h6 class="fw-bold mb-3"><i class="fa-solid fa-stethoscope text-success me-2"></i> Active Doctors on Duty</h6>
+            <ul class="list-group list-group-flush" style="font-size: 0.9rem;">
+                {% for doc in doctors_list %}
+                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 border-bottom">
+                    <div>
+                        <span class="fw-bold">Dr. {{ doc.first_name }} {{ doc.last_name }}</span><br>
+                        <small class="text-muted">{{ doc.specialization|default:"General Physician" }}</small>
+                    </div>
+                    {% if doc.is_active %}
+                        <span class="badge bg-success rounded-pill">Available</span>
+                    {% else %}
+                        <span class="badge bg-secondary rounded-pill">Off Duty</span>
+                    {% endif %}
+                </li>
+                {% empty %}
+                <li class="list-group-item bg-transparent px-0 text-muted">No doctors currently on duty.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Right Column: Queue & Directory -->
+    <div class="col-md-8">
+        <!-- Appointment Queue -->
+        <div class="custom-card mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Recent Appointments</h5>
+                <a href="{% url 'reception_desk' %}" class="btn btn-sm btn-outline-primary">Manage Desk</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover table-custom align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Doctor</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in appointments %}
+                            <tr>
+                                <td class="fw-bold">
+                                    {% if appt.patient %}
+                                        <a href="{% url 'patient_profile' appt.patient.id %}" class="text-decoration-none">
+                                            {{ appt.patient.first_name }} {{ appt.patient.last_name }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">Deleted Patient</span>
+                                    {% endif %}
+                                </td>
+                                <td>{% if appt.assigned_doctor %}Dr. {{ appt.assigned_doctor.last_name }}{% else %}<span class="text-muted">Deleted Doctor</span>{% endif %}</td>
+                                <td>
+                                    {% if appt.status == 'Pending' %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    {% elif appt.status == 'Completed' %}
+                                        <span class="badge bg-primary">Completed (Unpaid)</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Paid</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center text-muted py-3">No appointments found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Patient Directory -->
+        <div class="custom-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Patient Directory</h5>
+                <!-- Search Form -->
+                <form method="GET" class="d-flex" style="max-width: 300px;">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="search" class="form-control" placeholder="Search name or phone..." value="{{ search_query }}">
+                        <button class="btn btn-outline-primary" type="submit"><i class="fa-solid fa-search"></i></button>
+                        {% if search_query %}
+                            <a href="{% url 'receptionist_dashboard' %}" class="btn btn-outline-secondary"><i class="fa-solid fa-times"></i></a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover table-custom align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Contact</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pt in patients %}
+                        <tr>
+                            <td>#{{ pt.id }}</td>
+                            <td class="fw-bold">
+                                <a href="{% url 'patient_profile' pt.id %}" class="text-decoration-none">
+                                    {{ pt.first_name }} {{ pt.last_name }}
+                                </a>
+                            </td>
+                            <td>{{ pt.contact_number }}</td>
+                            <td>
+                                <a href="{% url 'patient_profile' pt.id %}" class="btn btn-sm btn-outline-primary me-1">
+                                    Profile
+                                </a>
+                                <a href="{% url 'reception_desk' %}?patient_id={{ pt.id }}" class="btn btn-sm btn-outline-success">
+                                    Book
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-3">No patients registered yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if patients.has_other_pages %}
+            <div class="mt-3 d-flex justify-content-end">
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        {% if patients.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page={{ patients.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Prev</a></li>
+                        {% endif %}
+                        {% for i in patients.paginator.page_range %}
+                            {% if patients.number == i %}
+                                <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                            {% else %}
+                                <li class="page-item"><a class="page-link" href="?page={{ i }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ i }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if patients.has_next %}
+                            <li class="page-item"><a class="page-link" href="?page={{ patients.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Next</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

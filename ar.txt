@@ -1,0 +1,29 @@
+hms_project/
+│
+├── manage.py
+├── hms_project/                 <-- Main Project Folder
+│   ├── __init__.py
+│   ├── settings.py              <-- [FILE PROVIDED BELOW]
+│   ├── urls.py
+│   └── wsgi.py
+│
+└── hospital/                    <-- Main App Folder
+    ├── __init__.py
+    ├── admin.py
+    ├── apps.py
+    ├── models.py                <-- [FILE PROVIDED BELOW]
+    ├── views.py                 
+    ├── urls.py                  
+    ├── forms.py                 
+    │
+    ├── static/                  <-- CSS/JS/Images go here
+    │   └── css/
+    │       └── style.css
+    │
+    └── templates/               <-- HTML UI goes here
+        ├── base.html            <-- [FILE PROVIDED BELOW] (Light Theme Master Layout)
+        ├── login.html
+        ├── receptionist/
+        │   └── dashboard.html
+        └── doctor/
+            └── dashboard.html

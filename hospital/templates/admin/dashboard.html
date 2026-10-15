@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block page_header %}Main Doctor Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="custom-card border-top border-primary border-4 text-center">
+            <div class="text-muted mb-1">Total Patients</div>
+            <h3 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-users"></i> {{ total_patients }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="custom-card border-top border-success border-4 text-center">
+            <div class="text-muted mb-1">Available Doctors</div>
+            <h3 class="fw-bold mb-0 text-success"><i class="fa-solid fa-user-doctor"></i> {{ doctors_count }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="custom-card border-top border-warning border-4 text-center">
+            <div class="text-muted mb-1">Pending Queue</div>
+            <h3 class="fw-bold mb-0 text-warning"><i class="fa-solid fa-hourglass-half"></i> {{ pending_appointments }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="custom-card border-top border-info border-4 text-center">
+            <div class="text-muted mb-1">Treatments Done</div>
+            <h3 class="fw-bold mb-0 text-info"><i class="fa-solid fa-check-double"></i> {{ completed_appointments }}</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Analytics Chart -->
+    <div class="col-md-8">
+        <!-- Interactive Chart -->
+        <div class="custom-card mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fa-solid fa-chart-line text-primary me-2"></i> 7-Day Revenue Trend</h5>
+                <div>
+                    <!-- Print All Records Button -->
+                    <a href="{% url 'print_all_records' %}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+                        <i class="fa-solid fa-print"></i> Print All Records
+                    </a>
+                    <!-- Export to CSV Button -->
+                    <a href="{% url 'export_financials_csv' %}" class="btn btn-sm btn-outline-success">
+                        <i class="fa-solid fa-file-csv"></i> Export Data
+                    </a>
+                </div>
+            </div>
+            <canvas id="revenueChart" height="100"></canvas>
+        </div>
+
+        <div class="custom-card mb-4">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-hospital-user text-primary me-2"></i> Recent Patient Registrations</h5>
+            <div class="table-responsive">
+                <table class="table table-hover table-custom align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Patient Name</th>
+                            <th>Gender/Age</th>
+                            <th>Contact</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pt in recent_patients %}
+                        <tr>
+                            <td>#{{ pt.id }}</td>
+                            <td class="fw-bold">{{ pt.first_name }} {{ pt.last_name }}</td>
+                            <td>{{ pt.gender }}, {{ pt.age }}</td>
+                            <td>{{ pt.contact_number }}</td>
+                            <td>
+                                <a href="{% url 'patient_profile' pt.id %}" class="btn btn-sm btn-outline-primary">View Profile</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center py-3 text-muted">No patients registered yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctors Availability -->
+    <div class="col-md-4">
+        <div class="custom-card">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-line text-success me-2"></i> Doctor Performance (7 Days)</h5>
+            <ul class="list-group list-group-flush">
+                {% for doc in doctors_list %}
+                <li class="list-group-item px-0 py-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <span class="fw-bold">Dr. {{ doc.first_name }} {{ doc.last_name }}</span>
+                            <br>
+                            <small class="text-muted">{{ doc.specialization|default:"General Physician" }}</small>
+                        </div>
+                        {% if doc.is_active %}
+                            <span class="badge bg-success rounded-pill">Available</span>
+                        {% else %}
+                            <span class="badge bg-secondary rounded-pill">Inactive</span>
+                        {% endif %}
+                    </div>
+                    <div class="row text-center mt-2">
+                        <div class="col-6 border-end">
+                            <small class="text-muted d-block">Patients</small>
+                            <span class="fw-bold">{{ doc.patients_treated|default:"0" }}</span>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Revenue</small>
+                            <span class="fw-bold text-success">₹{{ doc.revenue_generated|default:"0" }}</span>
+                        </div>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item px-0 text-muted">No working doctors found.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const chartLabels = {{ chart_dates_json|safe }};
+    const chartData = {{ chart_revenue_json|safe }};
+
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Revenue Collected (₹)',
+                data: chartData,
+                backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                borderColor: 'rgba(37, 99, 235, 1)',
+                borderWidth: 2,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+{% endblock %}

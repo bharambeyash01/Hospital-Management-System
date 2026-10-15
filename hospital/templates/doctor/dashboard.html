@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_header %}<i class="fa-solid fa-user-doctor text-primary me-2"></i> Doctor Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="custom-card border-top border-primary border-4 text-center p-3">
+            <div class="text-muted mb-1 small">Total Patients Treated</div>
+            <h4 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-check-double"></i> {{ patients_treated_count }}</h4>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="custom-card border-top border-success border-4 text-center p-3">
+            <div class="text-muted mb-1 small">Pending Queue Today</div>
+            <div class="d-flex align-items-center justify-content-center gap-3">
+                <h4 class="fw-bold mb-0 text-success"><i class="fa-solid fa-hospital-user"></i> {{ pending_queue_count }}</h4>
+                <a href="{% url 'doctor_queue' %}" class="btn btn-sm btn-outline-success">View Queue</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="custom-card mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">My Treatment History</h5>
+                <form method="GET" class="d-flex" style="max-width: 300px;">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="search" class="form-control" placeholder="Search patient name..." value="{{ search_query }}">
+                        <button class="btn btn-outline-primary" type="submit"><i class="fa-solid fa-search"></i></button>
+                        {% if search_query %}
+                            <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline-secondary"><i class="fa-solid fa-times"></i></a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover table-custom align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Appt ID</th>
+                            <th>Date</th>
+                            <th>Patient Name</th>
+                            <th>Symptoms</th>
+                            <th>Diagnosis</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in treated_appts %}
+                        <tr>
+                            <td>#{{ appt.id }}</td>
+                            <td>{{ appt.date_assigned|date:"M d, Y" }}</td>
+                            <td class="fw-bold">
+                                {% if appt.patient %}
+                                    <a href="{% url 'patient_profile' appt.patient.id %}" class="text-decoration-none">
+                                        {{ appt.patient.first_name }} {{ appt.patient.last_name }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">Deleted Patient</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ appt.symptoms_noted }}</td>
+                            <td>{{ appt.doctor_notes|default:"--"|truncatechars:45 }}</td>
+                            <td>
+                                <a href="{% url 'generate_prescription' appt.id %}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="fa-solid fa-file-prescription me-1"></i> Print Rx
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" class="text-center text-muted py-4">No treatment history found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if treated_appts.has_other_pages %}
+            <div class="mt-3 d-flex justify-content-end">
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        {% if treated_appts.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page={{ treated_appts.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Prev</a></li>
+                        {% endif %}
+                        {% for i in treated_appts.paginator.page_range %}
+                            {% if treated_appts.number == i %}
+                                <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                            {% else %}
+                                <li class="page-item"><a class="page-link" href="?page={{ i }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ i }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if treated_appts.has_next %}
+                            <li class="page-item"><a class="page-link" href="?page={{ treated_appts.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Next</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
